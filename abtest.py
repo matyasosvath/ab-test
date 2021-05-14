@@ -1,5 +1,11 @@
 #!/usr/local/bin/python
 
+from scipy.stats import t
+from scipy.stats import sem
+from numpy import mean
+from numpy.random import randn
+from numpy.random import seed
+from math import sqrt
 import numpy as np
 import pandas as pd
 from scipy import stats
@@ -16,121 +22,121 @@ import unittest
 
 """
 
-
-alpha = sys.argv[1]
-
-
-if sys.argv:
-	for i in sys.argv:
-		print(i)
-# sample_size = sys.argv[1]
-# effect_size = sys.argv[2]
-# power = sys.argv[3]
-
-
-b = 1 - (float(alpha)/2)
-confidence_level = stats.norm.ppf(b)
+# b = 1 - (float(alpha)/2)
+# confidence_level = stats.norm.ppf(b)
 
 
 class ABTest:
- 	def __init__(self, data, calculate='proportion'):
- 		self.data = np.array(data)
- 		self.n = len(data) # sample size
+    def __init__(self, *data):
+        self.data = np.array(data)
+        print(self.data)
+        self.n = len(data)  # sample size
 
+    def confidence_interval_proportion(self, prop):
+        """
+        prop/p_hat = point estimate
+        n: sample size
+        """
 
- 	def prop():
- 		csoportok = pd.value_counts(self.data)
+        prop_var = prop*(1-prop)
+        prop_neg = prop - confidence_level*np.sqrt(prop_var/self.n)
+        prop_pos = prop + confidence_level*np.sqrt(prop_var/self.n)
 
+        return prop, (prop_neg, prop_pos)
 
+    def confidence_interval_average(self):
+        sample_mean = sum(self.data)/len(self.data)
+        sample_var = sum(x-sample_mean for x in self.data)/self.n
+        print(sample_mean, sample_var)
 
+        se = sample_var/self.n  # Standard Error
+        avg_minus = sample_mean - confidence_level*np.sqrt(se)
+        avg_plus = sample_mean + confidence_level*np.sqrt(se)
 
- 	def confidence_interval_proportion(self, prop):
- 		"""
-		prop/p_hat = point estimate
-		n: sample size
- 		"""
+        return (avg_minus, avg_plus)
 
- 		prop_var = prop*(1-prop)
- 		prop_neg = prop - confidence_level*np.sqrt(prop_var/self.n)
- 		prop_pos = prop + confidence_level*np.sqrt(prop_var/self.n)
+    def prop_converted():
+        return pd.value_counts(self.data[0], normalize=True)
 
- 		return prop, (prop_neg, prop_pos)
+    def z_statistic_for_two_proportions(self):
+        p_a, p_b = self.prop_converted(self.data)
+        print(p_a, p_b)
+        n_a, n_b = self.data
+        n_a, n_b = len(n_a), len(n_b)
+        print(f'N_a és N_b: {n_a}, {n_b}')
 
- 	def confidence_interval_average(self):
- 		sample_mean = sum(self.data)/len(self.data)
- 		sample_var =  sum(x-sample_mean for x in self.data)/self.n
- 		print(sample_mean, sample_var)
+        # se_pool = (1/n_a+1/n_b)
 
- 		se = sample_var/self.n # Standard Error
- 		avg_minus = sample_mean - confidence_level*np.sqrt(se)
- 		avg_plus = sample_mean + confidence_level*np.sqrt(se)
+        p = (p_a + p_b)/(n_b + n_a)
+        z_score = (p_b - p_a) / np.sqrt(p*(1-p)(1/n_a+1/n_b))
 
- 		return (avg_minus, avg_plus)
+        pvalue = stats.norm.pdf(z_score) * 2
+        return (z_score, pvalue)
 
+    def t_statistic_for_two_averages(self):
+        x, y = self.data
+        # print(x, y)
 
- 	def z_statistic_for_two_proportions(self):
+        n1, n2 = len(x), len(y)
+        # print(f'adatok {n1},{n2}')
 
- 		X_a = len(p_a_converted)
- 		X_b = len(p_b_converted)
+        # std1, std2 = x.std(), y.std()
+        # # print(f'standard devs {std1},{std2}')
+        # se1 = std1/np.sqrt(n1)
+        # se2 = std2/np.sqrt(n2)
+        # print(f'standard errors {se1},{se2}')
 
+        # se = np.sqrt(se1**2 + se2**2)
+        # t_stat = (x.mean() - y.mean()) / se
 
- 		se_pool = (1/n_a+1/n_b)
+        # df = n1 + n2 - 2  # degrees of freedom
 
- 		p = (X_a + X_b)/n_b + n_a
- 		z_score = (p_a_converted - p_b_converted) / np.sqrt(p(1-p)(1/n_a+1/n_b))
+        # p = (1 - stats.t.cdf(abs(t_stat), df)) * 2  # two-tailed
+        # print(p)
+        # # p = stats.t.sf(t_stat, df)
+        # # print(p)
+        # return t_stat, p
+        mean1, mean2 = mean(x), mean(y)
 
- 		pvalue = stats.norm.pdf(z_score) * 2
- 		return (z_score, pvalue)
+        se1 = x.std()/np.sqrt(n1)
+        se2 = y.std()/np.sqrt(n2)
+        # print(f'standard errors {se1},{se2}')
 
-
- 	def t_statistic_for_two_averages(self):
- 		pass
-
-
+        #se = np.sqrt(se1**2 + se2**2)
+        # calculate standard errors
+        #se1, se2 = sem(x), sem(y)
+        # standard error on the difference between the samples
+        sed = sqrt(se1**2.0 + se2**2.0)
+        # calculate the t statistic
+        t_stat = (mean1 - mean2) / sed
+        # degrees of freedom
+        df = len(x) + len(y) - 2
+        # calculate the critical value
+        #cv = t.ppf(1.0 - alpha, df)
+        # calculate the p-value
+        p = (1.0 - t.cdf(abs(t_stat), df)) * 2.0
+        # return everything
+        return t_stat, df, p
 
 
 if __name__ == '__main__':
-	x = list(range(15))
-	y = list(range(10))
+    # alpha = sys.argv[1]
+    # sample_size = sys.argv[2]
+    # effect_size = sys.argv[3]
+    # power = sys.argv[4]
 
-	ab = ABTest(x)
-	print(ab.confidence_interval_average())
+    # b = 1 - (float(alpha)/2)
+    # confidence_level = stats.norm.ppf(b)
 
- 	# if proportion:
- 	# 	pass
- 	# 	# proportions()
+    x = pd.Series(np.random.randint(0, 2, size=30))
+    ab = ABTest(x)
+    print(ab.z_statistic_for_two_proportions())
 
+    # x = pd.Series(np.random.randint(10, 20, size=30))
+    # y = pd.Series(np.random.randint(15, 30, size=30))
+    # print(x.mean(), y.mean())
 
- 	# if average:
- 	# 	# avrage()
-
-
- 	# def two_proportions(self, sample_a, sample_b):
- 	# 	# calc p_a, p_b
- 	# 	pass
-
-
- 	# def two_averages(self, sample_a, sample_b):
- 	# 	# calc averages
- 	# 	# t-stat
-
-
-
-
-
-
-# class TestSum(unittest.TestCase):
-
-#     def test_calc_power(self):
-#         self.assertEqual(sum([1, 2, 3]), 6, "Should be 6")
-
-#     def test_calc_confidence_interval(self):
-#         self.assertEqual(sum((1, 2, 2)), 6, "Should be 6")
-
-#     def test_calc_pvalue(self):
-#     	pass
-#     # ...
-
-# if __name__ == '__main__':
-#     unittest.main()
-
+    # ab = ABTest(x, y)
+    # print(ab.t_statistic_for_two_averages())
+    # print(stats.ttest_ind(x, y, equal_var=False))
+    # print(stats.ttest_ind(x, y, equal_var=True))
