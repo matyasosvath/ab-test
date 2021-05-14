@@ -6,6 +6,8 @@ from numpy import mean
 from numpy.random import randn
 from numpy.random import seed
 from math import sqrt
+
+
 import numpy as np
 import pandas as pd
 from scipy import stats
@@ -22,7 +24,6 @@ import unittest
 
 """
 
-from scipy import stats
 
 alpha = 0.05
 b = 1 - (float(alpha)/2)
@@ -31,6 +32,14 @@ power = 0.8
 #print(confidence_level) # 1.96
 
 #n = sys.argv[2] # sample size
+
+
+
+def read_data(data, needed_cols, **kwargs):
+    df = pd.read_csv(data)
+    df = df.iloc[:,int(needed_cols)]
+    print(df)
+    return df
 
 
 class ABTest:
@@ -155,6 +164,12 @@ if __name__ == '__main__':
   
 
     import sys
+
+
+    df = sys.argv[1]
+    cols = sys.argv[2]
+
+    print(read_data(df, cols))
 
     if sys.argv[1] == 'proportion':
         p = sys.argv[2]
