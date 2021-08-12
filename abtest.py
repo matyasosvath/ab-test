@@ -50,7 +50,7 @@ class ABTest:
         #self.n = int(float(n))  # sample size
         #print(f'Elemszám: {self.n}')
 
-    def confidence_interval_proportion(self):
+    def confidence_interval_proportion(self, prop1, prop2):
         """
         Calculates the confidence interval for the estimated proprtions (a point estimate).
         """
@@ -149,10 +149,25 @@ class ABTest:
         # return everything
         return t_stat, p
 
+    def run(self):
+        pass
+
 
 #TODO: tests
 
 if __name__ == '__main__':
+
+
+
+    # Hogy akarod használni
+    """
+    ab_test --method==average --avg1
+    """
+
+    ci_level = 95
+    power = 0.8
+
+
     # alpha = sys.argv[1]
     # sample_size = sys.argv[2]
     # effect_size = sys.argv[3]
@@ -163,62 +178,62 @@ if __name__ == '__main__':
 
   
 
-    import sys
+    # import sys
 
 
-    df = sys.argv[1]
-    cols = sys.argv[2]
+    # df = sys.argv[1]
+    # cols = sys.argv[2]
 
-    print(read_data(df, cols))
+    # print(read_data(df, cols))
 
-    if sys.argv[1] == 'proportion':
-        p = sys.argv[2]
-        n = sys.argv[3]
+    # if sys.argv[1] == 'proportion':
+    #     p = sys.argv[2]
+    #     n = sys.argv[3]
 
-        ab = ABTest(p)
-        p, ci = ab.confidence_interval_proportion()
-        print(f'Proportions was {p} with CI 95% {ci}.')
-        print('\n')
-
-
-
-    if sys.argv[1] == 'proportions':
-
-        prop_1 = sys.argv[2]
-        prop_2 = sys.argv[3]
-        n_a = sys.argv[4]
-        n_b = sys.argv[5]
-
-        ab = ABTest(prop_1,prop_2, n_a, n_b)
-        print(f'{ab.z_statistic_for_two_proportions()}')
+    #     ab = ABTest(p)
+    #     p, ci = ab.confidence_interval_proportion()
+    #     print(f'Proportions was {p} with CI 95% {ci}.')
+    #     print('\n')
 
 
-    if sys.argv[1] == 'average':
 
-        avg = sys.argv[2]
-        std = sys.argv[3]
-        n = sys.argv[4]
+    # if sys.argv[1] == 'proportions':
+
+    #     prop_1 = sys.argv[2]
+    #     prop_2 = sys.argv[3]
+    #     n_a = sys.argv[4]
+    #     n_b = sys.argv[5]
+
+    #     ab = ABTest(prop_1,prop_2, n_a, n_b)
+    #     print(f'{ab.z_statistic_for_two_proportions()}')
+
+
+    # if sys.argv[1] == 'average':
+
+    #     avg = sys.argv[2]
+    #     std = sys.argv[3]
+    #     n = sys.argv[4]
         
-        ab = ABTest(avg, std)
-        avg, ci = ab.confidence_interval_average()
-        print(f'Average was {avg} with CI 95% {ci}.')
-        print('\n')
+    #     ab = ABTest(avg, std)
+    #     avg, ci = ab.confidence_interval_average()
+    #     print(f'Average was {avg} with CI 95% {ci}.')
+    #     print('\n')
 
 
-    if sys.argv[1] == 'averages':
+    # if sys.argv[1] == 'averages':
 
-        avg_1 = sys.argv[2]
-        avg_2 = sys.argv[3]
+    #     avg_1 = sys.argv[2]
+    #     avg_2 = sys.argv[3]
         
-        std_1 = sys.argv[4]
-        std_2 = sys.argv[5]
+    #     std_1 = sys.argv[4]
+    #     std_2 = sys.argv[5]
         
-        n_1 = sys.argv[6]
-        n_2 = sys.argv[7]
+    #     n_1 = sys.argv[6]
+    #     n_2 = sys.argv[7]
         
-        ab = ABTest(avg_1, avg_2, std_1, std_2, n_1, n_2)
-        t, p = ab.t_statistic_for_two_averages()
-        print(f'Test statistic is {t} and p-value is {p}')
+    #     ab = ABTest(avg_1, avg_2, std_1, std_2, n_1, n_2)
+    #     t, p = ab.t_statistic_for_two_averages()
+    #     print(f'Test statistic is {t} and p-value is {p}')
 
 
 
