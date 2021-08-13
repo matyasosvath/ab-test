@@ -67,16 +67,27 @@ class ABTest(object):
         prop_a, n_a = self.df[col1].value_counts(normalize=True)[1], len(self.df[col1])
         prop_b, n_b = self.df[col2].value_counts(normalize=True)[1], len(self.df[col2])
         prop_a, prop_b, n_a, n_b = float(prop_a), float(prop_b), float(n_a), float(n_b)
+        #print(prop_a, prop_b, n_a, n_b)
         
-        print(prop_a, prop_b, n_a, n_b)
-        
-        p_comb = prop_a + prop_b
-        print(p_comb)
-        print(type(p_comb))
+        # Standard error of two proportions
+        se1 = np.sqrt((prop_a*(1-prop_a))/n_a)
+        se2 = np.sqrt((prop_b*(1-prop_b))/n_b)
 
-        z_score = (prop_b - prop_a) / np.sqrt(p_comb*(1-p_comb)*((1/n_a)+(1/n_b)))
+        standard_error_for_difference_between_proportions = np.sqrt(se1**2 + se2**2)
+        
+        z_score = (prop_a - prop_b) / standard_error_for_difference_between_proportions
+        
         pvalue = ss.norm.pdf(abs(z_score)) * 2 # two-tailed
-        return (z_score, pvalue) # abs(z_score) ???    
+        
+        # CONFIDENCE INTERVAL
+        if ci:
+            z_cl = ss.norm.ppf(self.b)
+            ci_lower = prop_a - prop_b - z_cl * standard_error_for_difference_between_proportions
+            ci_upper = prop_a - prop_b + z_cl * standard_error_for_difference_between_proportions
+            return z_score, pvalue, (ci_upper, ci_lower)
+        
+        else:
+            return z_score, pvalue
 
     def run(self, method, data, col1, col2):
 
