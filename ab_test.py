@@ -6,8 +6,6 @@ import scipy.stats as ss
 import fire
 import logging
 
-#TODO megírnia raedme
-#TODO összefoglalni obsidian-ba
 
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
