@@ -36,7 +36,7 @@ class ABTest(object):
         # Calculate Standard error
         std1, std2 = self.df[col1].std(), self.df[col2].std()
 
-        se1 = std1 / np.sqrt(self.df[col1].shape[0]) #teszt
+        se1 = std1 / np.sqrt(self.df[col1].shape[0])
         se2 = std2 / np.sqrt(self.df[col2].shape[0])
 
         standard_error_for_difference_between_means = np.sqrt(se1**2 + se2**2)
@@ -60,7 +60,7 @@ class ABTest(object):
         else:
             return t_test_statistic, p_value
 
-    def z_test(self, col1, col2), ci=True:
+    def z_test(self, col1, col2, ci=True):
         
         print('Z-test for two proportions')
 
