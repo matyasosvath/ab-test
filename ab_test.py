@@ -6,17 +6,8 @@ import scipy.stats as ss
 import fire
 import logging
 
-
-"""
-4 moving parts
-- sample size
-- effect size
-- power
-- p-value
-"""
-
-#TODO Tests
-
+#TODO megírnia raedme
+#TODO összefoglalni obsidian-ba
 
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
@@ -30,14 +21,13 @@ stream_handler.setLevel(logging.INFO)
 logger.addHandler(stream_handler)
 
 
-
 class ABTest(object):
     """
     A simple AB Test for two proportions or averages.
     """
     def __init__(self):
         self.alpha=0.05
-        self.b = 1 - (float(self.alpha)/2)
+        self.__b = 1 - (float(self.alpha)/2)
         self.power = 0.8
 
         logging.info("AB Test class initialized!")
@@ -84,7 +74,7 @@ class ABTest(object):
         
         # CONFIDENCE INTERVAL
         if ci:
-            t_cl = ss.t.ppf(self.b, df=degrees_of_freedom) # t value for confidence interval
+            t_cl = ss.t.ppf(self.__b, df=degrees_of_freedom) # t value for confidence interval
 
             ci_lower = mean_diff - t_cl * standard_error_for_difference_between_means
             ci_upper = mean_diff + t_cl * standard_error_for_difference_between_means
@@ -133,7 +123,7 @@ class ABTest(object):
         
         # CONFIDENCE INTERVAL
         if ci:
-            z_cl = ss.norm.ppf(self.b)
+            z_cl = ss.norm.ppf(self.__b)
             ci_lower = prop_diff - z_cl * standard_error_for_difference_between_proportions
             ci_upper = prop_diff + z_cl * standard_error_for_difference_between_proportions
             return z_test_statistic, pvalue, np.round((ci_lower, ci_upper), 3)
@@ -169,35 +159,36 @@ class ABTest(object):
             raise ValueError("Should not come here.")
 
 
-
 # TESTS
 import unittest
 
 class TestABTest(unittest.TestCase):
-        
-    def test_t_test(self):
 
+    def setUp(self) -> None:
         np.random.seed(42)
+
         data = {'nominal1': np.random.randint(0,2, size=100),
             'nominal2': np.random.randint(0,2, size=100),
             'interval1': np.random.randint(0,20, size=100),
             'interval2': np.random.randint(0,20, size=100)
             }
 
-        df = pd.DataFrame(data)
-        abtest = ABTest()
+        self.data = pd.DataFrame(data)
+        self.abtest = ABTest()
 
-        t,p,ci = abtest.run('avgs', df, 'interval1', 'interval2')
-
-        print(t,p,ci)
+    def test_t_test(self):
+        t, p, ci = self.abtest.run('avgs', self.data, 'interval1', 'interval2')
     
         self.assertEqual(t, 0.422, "T test statistic error")
         self.assertEqual(p, 0.674, "Pvalue is not looking good")
-        self.assertEqual(ci[0], -1.405, 'Ci problem')
+        self.assertEqual(ci[0], -1.405, 'CI problem')
 
     def test_z_test(self):
-        pass
+        z, p, ci = self.abtest.run('props', self.data, 'nominal1', 'nominal2')
 
+        self.assertEqual(z, 1.709, "T test statistic error")
+        self.assertEqual(p, 0.185, "Pvalue is not looking good")
+        self.assertEqual(ci[0], -0.018, 'CI problem')
 
 if __name__ == '__main__':
   fire.Fire(ABTest)
